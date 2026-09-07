@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../schema.json
+# Environment config for SOM CI/CD custom flow testing
+
+account:
+  name: som-cicd-test
+  github_environment: som-cicd-test
+
+deployments:
+  - name: SOM_DEPLOYMENT
+    deployment_type: SNOWFLAKE
+    runtimes:
+      - name: CUSTOM_FLOW_RUNTIME
+        database: OPENFLOW
+        schema: PUBLIC
+        url: "https://of2--sfsenorthamerica-sfse-prevalkar.snowflakecomputing.app:443/customflowruntime-100/nifi"
+        flow_registries:
+          - name: nifihub
+            type: org.apache.nifi.github.GitHubFlowRegistryClient
+            properties:
+              Repository Owner: sfc-gh-prevalkar
+              Repository Name: nifihub
+              Authentication Type: PERSONAL_ACCESS_TOKEN
+              Personal Access Token: ${{ secrets.NIFIHUB_REGISTRY_PAT }}
+              Default Branch: main
+              Repository Path: flows
+        flows:
+          - name: "Snowflake-to-Postgres"
+            bucket: custom
+            flow: snowflake-to-postgres
+            version: latest
+            start: false
